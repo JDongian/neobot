@@ -1,21 +1,31 @@
-import gtk.gdk
+import gtk.gdk#
 from PIL import Image
 import time
 import random
 
 window, screenSize = 0,0
+currentFrame = False
+
+def pixbufToImage(pb):#
+    return Image.frombuffer('RGB', (pb.get_width(), pb.get_height()),
+            pb.get_pixels(), 'raw', 'RGB', pb.get_rowstride(), 1)
+    #return Image.fromstring('RGB', (pb.get_width(), pb.get_height()), pb.get_pixels() )
 
 def init():
     global window, screenSize
     window = gtk.gdk.get_default_root_window()
     screenSize = window.get_size()
 
+def updateScreen():
+    global currentFrame
+    currentFrame = getScreen()
+
 def getScreen():
     pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,screenSize[0],screenSize[1])
     pb = pb.get_from_drawable(window,window.get_colormap(),0,0,0,0,screenSize[0],screenSize[1])
     if (pb != None):
         #pb.save("./test.png","png")
-        return pb
+        return pixbufToImage(pb)
     else:
         return False
 
@@ -29,8 +39,8 @@ def isColorMatch(c1, c2, fuzz=0, mode='basic'):
     if fuzz < 0:
         print 'Error: bad fuzz parameter.'
     if mode == 'basic':
-        for i in range(len(c1)):
-            if abs(c1[i]-c2[i]) > fuzz:
+        for b1, b2 in zip(c1, c2):
+            if abs(b1-b2) > fuzz:
                 return False
         return True
     elif mode == 'conservative':
@@ -59,23 +69,34 @@ def getColor((x,y), ref=False, im=False):
         return ImageGrab.grab().getpixel(pos)
     else:
         return im.getpixel(pos)
-def findColor(rgb, size, rgb_domain, relRegion,
+def findPixels(rgb, rgb_domain, fuzz=0):
+    '''
+    Returns a list of coordinates of matching pixels in the domain.
+    '''
+    results = []
+    for x in xrange(rgb_domain.size[0]):
+        for y in xrange(rgb_domain.size[1]):
+            if isColorMatch(rgb, rgb_domain.getpixel((x,y)), fuzz):
+                results.append((x, y))
+    return results
+
+def findColor(rgb, size, rgb_domain, relRegion=False,
               fuzz=0, forward=True):
     '''
     Find a rectangle of color in an image.
     '''
     rgb_target = Image.new('RGB', size, rgb)
     return findImage(rgb_target, rgb_domian, relRegion, fuzz, forward)
-def findColorOnScreen(rgb, size=(1,1), relRegion=((0,0), (1366,768)),
+def findColorOnScreen(rgb, size=(1,1),
                       fuzz=0, forward=True):
     '''
-    Find a rectangle of color on the screen.
+    Find a rectangle of color on the current frame.
     '''
     rgb_target = Image.new('RGB', size, rgb)
-    return findImageOnScreen(rgb_target, region, fuzz, forward)
+    return findImage(rgb_target, currentFrame, False, fuzz, forward)
 
 #Image matching
-def isImageAt(rgb_target, rgb_domian, relPos, fuzz, forward=True):
+def isImageAt(rgb_target, rgb_domain, relPos, fuzz, forward=True):
     '''
     Match an image in another image at a given point (relPos).
     '''
@@ -83,20 +104,21 @@ def isImageAt(rgb_target, rgb_domian, relPos, fuzz, forward=True):
         #relPos is the top left corner
         for x in range(rgb_target.size[0]):
             for y in range(rgb_target.size[1]):
-                if not colorMatch(rgb_target.getpixel((x, y)),
-                                  region.getpixel((x+relPos[0], y+relPos[1])),
+                if not isColorMatch(rgb_target.getpixel((x, y)),
+                                  rgb_domain.getpixel((x+relPos[0], y+relPos[1])),
                                   fuzz, 'basic'):
                     return False
     else:
         #relPos is the bottom right corner
         for x in range(rgb_target.size[0]):
             for y in range(rgb_target.size[1]):
-                if not colorMatch(rgb_target.getpixel((x, y)),
-                                  region.getpixel((x+relPos[0]-rgb_im.size[0],
-                                                   y+relPos[1]-rgb_im.size[1])),
+                if not isColorMatch(rgb_target.getpixel((x, y)),
+                                  rgb_domain.getpixel((x+relPos[0]-rgb_target.size[0],
+                                                    y+relPos[1]-rgb_target.size[1])),
                                   fuzz, 'basic'):
                     return False
     return True
+
 def findImage(rgb_target, rgb_domain, region=False,
               fuzz=0, forwardSearch=True):
     '''
@@ -109,17 +131,15 @@ def findImage(rgb_target, rgb_domain, region=False,
         region = (rgb_domain.size[0], rgb_domain.size[1])
     if forwardSearch:
         #Search from the top left corner.
-        for x in range(rgb_target.size[0]):
-            for y in range(rgb_target.size[1]):
-                ####win32api.SetCursorPos((x+1, y+1))
-                ####time.sleep(0.01)
-                if isImageAt(rgb_im, region, (x, y), fuzz, True):
+        for x in xrange(region[0]):
+            for y in xrange(region[1]):
+                if isImageAt(rgb_target, rgb_domain, (x, y), fuzz, True):
                     return (x,y)
     else:
         #Search from the bottom right corner.
-        for x in reversed(range(search.size[0])):
-            for y in reversed(range(search.size[1])):
-                if isImageAt(rgb_im, region, (x, y), fuzz, False):
+        for x in reversed(range(rgb_target.size[0])):
+            for y in reversed(range(rgb_target.size[1])):
+                if isImageAt(rgb_target, rgb_domain, (x, y), fuzz, False):
                     return (x,y)
     return (-1,-1)
 def findImageOnScreen(rgb_target, region=((0,0), (1366,768)),
@@ -202,15 +222,15 @@ def findThick(color, fuzz, rgb_im, im_pos,
     return segments
 
 #screen and game
-def findGame(color1, color2):
+def findGame(colorPair):
     '''
     Locates the game based on images of
     the upper left and bottom right corners.
     '''
-    gamePos = (findColor(color1, 0, True, (1,1)),
-               findColor(color2, 0, False, (1,1)))
-    gameLen = gamePos[1][0]-gamePos[0][0]
-    gameHeight = gamePos[1][1]-gamePos[0][1]
+    global currentFrame
+    currentFrame = getScreen()
+    return (findColorOnScreen(colorPair[0], (1,1), True, (1,1)),
+            findColorOnScreen(colorPair[1], (1,1), False, (1,1)))
 
 def findGame2(color, res=200, mode='x'):
     lines = findThick(color, 0, 0, (0,0), res, 0, 0, 0, mode)
@@ -243,19 +263,33 @@ def getScreenSize():
     return screenSize
 
 
+init()
 
 """
 DEBUGGING TOOLS
 """
-def showImg():
-    import webbrowser
-    webbrowser.open('test.png')
+def saveScreen():
+    '''
+    TODO: add id number for multiple screenshots
+    '''
+    currentFrame.save('./screenshots/scr.png')
 
-init()
+def showImg(name):
+    Image.open(name).show()
+
+def test():
+    print 'true:', isColorMatch((0,0,0), (0,0,0))
+    print 'false:', isColorMatch((0,0,1), (0,0,0))
+    print 'true:', isColorMatch((0,0,0), (5,5,5), 5)
+    print 'false:', isColorMatch((0,0,0), (6,5,5), 5)
+    updateScreen()
+    saveScreen()
+    print currentFrame.getpixel((0,0))
+    #print len(findPixels((0,0,0), currentFrame, 1))
+    print 'first instance of black:', findColorOnScreen((0,0,0), (1,1))
+    #print 'last instance of black:', findColorOnScreen((0,0,0), (1,1), 0, False)
+    #showImg('./screenshots/scr.png')
 
 if __name__=='__main__':
-    getScreen()
-    showImg()
-
-
+    test()
 
