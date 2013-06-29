@@ -1,13 +1,20 @@
+import gtk.gdk
 from PIL import Image
 import time
 import random
-import gtk.gdk
+
+window, screenSize = 0,0
+
+def init():
+    global window, screenSize
+    window = gtk.gdk.get_default_root_window()
+    screenSize = window.get_size()
 
 def getScreen():
-    w = gtk.gdk.get_default_root_window()
-    pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,sz[0],sz[1])
-    pb = pb.get_from_drawable(w,w.get_colormap(),0,0,0,0,sz[0],sz[1])
+    pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,screenSize[0],screenSize[1])
+    pb = pb.get_from_drawable(window,window.get_colormap(),0,0,0,0,screenSize[0],screenSize[1])
     if (pb != None):
+        #pb.save("./test.png","png")
         return pb
     else:
         return False
@@ -200,21 +207,12 @@ def findGame(color1, color2):
     Locates the game based on images of
     the upper left and bottom right corners.
     '''
-    global gameLen
-    global gameHeight
-    global gamePos
-    global screenSize
-    
     gamePos = (findColor(color1, 0, True, (1,1)),
                findColor(color2, 0, False, (1,1)))
     gameLen = gamePos[1][0]-gamePos[0][0]
     gameHeight = gamePos[1][1]-gamePos[0][1]
 
 def findGame2(color, res=200, mode='x'):
-    global gamePos
-    global gameLen
-    global gameHeight
-    
     lines = findThick(color, 0, 0, (0,0), res, 0, 0, 0, mode)
     d = []
     for l in lines:
@@ -241,12 +239,23 @@ def findGame2(color, res=200, mode='x'):
     gameLen = gamePos[1][0]-gamePos[0][0]
     gameHeight = gamePos[1][1]-gamePos[0][1]
 
-def setScreenSize():
-    w = gtk.gdk.get_default_root_window()
-    return w.get_size()
+def getScreenSize():
+    return screenSize
+
+
+
+"""
+DEBUGGING TOOLS
+"""
+def showImg():
+    import webbrowser
+    webbrowser.open('test.png')
+
+init()
 
 if __name__=='__main__':
-    getScreen().show()
+    getScreen()
+    showImg()
 
 
 
