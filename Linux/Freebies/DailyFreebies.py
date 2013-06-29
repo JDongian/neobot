@@ -5,39 +5,23 @@ import getpass
 
 lunarGetURL = 'http://www.neopets.com/shenkuu/lunar/?show=puzzle'
 lunarPostURL = 'http://www.neopets.com/shenkuu/lunar/results.phtml'
-
 omeletteURL = 'http://www.neopets.com/prehistoric/omelette.phtml'
 jellyURL = 'http://www.neopets.com/jelly/jelly.phtml'
-
 bankPostURL = 'http://www.neopets.com/process_bank.phtml'
 bankGetURL = 'http://www.neopets.com/bank.phtml'
-
 slorgURL = 'http://www.neopets.com/shop_of_offers.phtml'
-
 toyURL = 'http://www.neopets.com/petpetpark/daily.phtml'
-
 obsidianURL = 'http://www.neopets.com/magma/quarry.phtml'
-
 appleURL = 'http://www.neopets.com/halloween/applebobbing.phtml?bobbing=1'
-
 krawkenURL = 'http://www.neopets.com/pirates/anchormanagement.phtml'
-
 marrowURL = 'http://www.neopets.com/medieval/process_guessmarrow.phtml'
-
 tombolaURL = 'http://www.neopets.com/island/tombola2.phtml'
-
 tombURL = 'http://www.neopets.com/worlds/geraptiku/process_tomb.phtml'
-
 fruitURL = 'http://www.neopets.com/desert/fruit/index.phtml'
-
 coltzanURL = 'http://www.neopets.com/desert/shrine.phtml'
-
 meteorURL = 'http://www.neopets.com/moon/process_meteor.phtml'
-
 plushieURL = 'http://www.neopets.com/faerieland/tdmbgpop.phtml'
-
 fishingURL = 'http://www.neopets.com/water/fishing.phtml'
-
 hideURL = 'http://www.neopets.com/games/process_hideandseek.phtml'
 
 def hide(session):
@@ -95,9 +79,8 @@ def marrow(session):
     return True
 
 '''
-FINISHED METHODS
+(MOSTLY) FINISHED METHODS
 '''
-
 
 def getToys(session):
     query = {'go': 1}
@@ -267,14 +250,6 @@ def login():
     return False
 
 if __name__ == '__main__':
-    s = login()
-    #print hide(s), hide(s),hide(s),hide(s)
-'''    for f in DailyFreebies.__dict__.keys():
-        if f[:3] == 'get' and f[3] != 'p':
-            freebie = getattr(DailyFreebies, f)()
-            freebie(s)
-
-'''
-
+    print 'Herpaderp'
 
 
