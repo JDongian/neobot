@@ -272,7 +272,7 @@ def saveScreen():
     '''
     TODO: add id number for multiple screenshots
     '''
-    currentFrame.save('./screenshots/scr.png')
+    currentFrame.save('/home/joshua/Documents/git/neobot/Linux/Robot/screenshots/scr.png')
 
 def showImg(name):
     Image.open(name).show()

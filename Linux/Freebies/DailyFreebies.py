@@ -216,7 +216,7 @@ def getOmelette(session):
     omelettePage = session.post(omeletteURL, query).content
     with open('dump/dumpOmelette.html', 'w') as dump:
         dump.write(omelettePage.encode('ascii', 'xmlcharrefreplace'))
-    if(re.findall('Sabre-X', omelettePage)):
+    if(re.findall('(Sabre-X)|(Gone!!!)', omelettePage)):
         print 'Aready taken'
         return False
     if(re.findall('... and', omelettePage)):
