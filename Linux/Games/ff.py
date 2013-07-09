@@ -9,19 +9,20 @@ ffRestart = [(0.751, 0.525)]
 
 def play(n=3, mode='farm'):
     print findGame(gameColors)
-    return
     for i in range(n):
         print 'Starting game...'
-        traversePath(ffStart, 0.1, True, getGamePos()[0])
+        for p in ffStart:
+            clickRatio(p, 1)
         print 'Submitting score...'
-        traversePath(ffSend, 0.1, True, getGamePos()[0])
+        for p in ffSend:
+            clickRatio(p, 1)
         restartX = int(ffRestart[0][0]*getGameDim()[0])
         restartY = int(ffRestart[0][1]*getGameDim()[1])
         box = ((restartX-20, restartY-10), (restartX+20, restartY+10))
         print 'Waiting for submission...'
         while findColor((255, 255, 255), 5, True, (1,1),
-                        ((restartX-20, restartY-10), (restartX+20, restartY+10)),
-                        getGamePos()[0]) == (-1,-1):
+                ((restartX-20, restartY-10), (restartX+20, restartY+10)),
+                getGamePos()[0]) == (-1,-1):
             print 'Waiting for submission...'
             wait(0.2, 0)
         print 'Score submitted.'

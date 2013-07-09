@@ -32,7 +32,7 @@ def outStr(string, intradelay=0):
 ### Mouse in
 ###
 
-def mousePos(screenroot=display.Display().screen().root):
+def getMousePos(screenroot=display.Display().screen().root):
     pointer = screenroot.query_pointer()
     data = pointer._data
     return data["root_x"], data["root_y"]
@@ -52,18 +52,14 @@ def outMov(coord, mode, click=False, postDelay=0):
 
     if mode == 'abs':
         rawinput.absoluteMotion(coord[0], coord[1], postDelay)
-        if click:
-            outClick(postDelay)
     elif mode == 'rel':
         rawinput.absoluteMotion((int(gamePos[0][0]+relPos[0]),
             int(gamePos[0][1]+relPos[1])), postDelay)
-        if click:
-            outClick(postDelay)
     elif mode == 'ratio':
         rawinput.absoluteMotion((int(ratioPos[0]*gameLen),
             int(ratioPos[1]*gameHeight)), postDelay)
-        if click:
-            outClick(postDelay)
+    if click:
+        outClick(postDelay)
 
 def clickAbs(absPos, postDelay=0):
     '''
@@ -118,50 +114,41 @@ def traversePath(points, click=False, ref=-1):
         if click:
             click()
 
+def randomizePoint(p, dx, dy):
+    return p+random.gauss(0, dx/4), p+random.gauss(0, dy/4)
+
+def randomWait(t):
+    print 'I waited'
+
+'''
+Test suite
+'''
+
 def testKb():
-    print 'Beginning tests in 3..'
-    time.sleep(1)
-    print '..2..'
-    time.sleep(1)
-    print '..1..'
-    time.sleep(1)
     print 'Testing kb out: printing alphabet twice.'
     for i in range(0, 26):
         outKey(chr(i+ord('a')))
     outStr(''.join(map(chr, range(97, 123))))
-    print 'Test done.'
 
 def testMouse():
     import subprocess, re
-    print 'Beginning tests in 3..'
-    time.sleep(1)
-    print '..2..'
-    time.sleep(1)
-    print '..1..'
-    time.sleep(1)
     print 'Testing mouse out: drawing a square spiral.'
     osval = subprocess.check_output("xrandr | grep '*'", shell=True)
     dim = re.findall('(\d+)', osval)[:2]
     dim = int(dim[0]), int(dim[1])
     counter = 0
     while counter < dim[1]:
-        outMov((counter, counter), 'abs', 1)
+        outMov((counter, counter), 'abs')
         outMov((counter, dim[1]-counter), 'abs')
         outMov((dim[0]-counter, dim[1]-counter), 'abs')
         outMov((dim[0]-counter, counter), 'abs')
         counter += 1
-    print 'Test done.'
+    for i in xrange(400):
+        outMov((i*2,i), 'abs', False, 0.05)
 
 if __name__=='__main__':
     testMouse()
-
-
-
-
-
-
-
-
+    testKb()
 
 
 

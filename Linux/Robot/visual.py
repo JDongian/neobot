@@ -137,8 +137,8 @@ def findImage(rgb_target, rgb_domain, region=False,
                     return (x,y)
     else:
         #Search from the bottom right corner.
-        for x in reversed(range(rgb_target.size[0])):
-            for y in reversed(range(rgb_target.size[1])):
+        for x in reversed(xrange(rgb_target.size[0], region[0])):
+            for y in reversed(xrange(rgb_target.size[1], region[1])):
                 if isImageAt(rgb_target, rgb_domain, (x, y), fuzz, False):
                     return (x,y)
     return (-1,-1)
@@ -284,10 +284,12 @@ def test():
     print 'false:', isColorMatch((0,0,0), (6,5,5), 5)
     updateScreen()
     saveScreen()
-    print currentFrame.getpixel((0,0))
-    #print len(findPixels((0,0,0), currentFrame, 1))
-    print 'first instance of black:', findColorOnScreen((0,0,0), (1,1))
-    #print 'last instance of black:', findColorOnScreen((0,0,0), (1,1), 0, False)
+    print 'Colors along diagonal to 10,10:'
+    for i in xrange(10):
+        print currentFrame.getpixel((i,i))
+    print 'Black pixels:', len(findPixels((0,0,0), currentFrame, 0))
+    print 'first instance of red:', findColorOnScreen((0xFF,0,0), (1,1))
+    print 'last instance of red:', findColorOnScreen((0xFF,0,0), (1,1), 0, False)
     #showImg('./screenshots/scr.png')
 
 if __name__=='__main__':
