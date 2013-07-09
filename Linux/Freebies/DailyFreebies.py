@@ -47,15 +47,6 @@ def metor(session):
         return False
     return True
 
-def coltzan(session):
-    '''
-    does not work
-    '''
-    coltzanPage = session.post(coltzanURL).content
-    if(re.findall('young', coltzanURL)):
-        return True
-    return False
-
 def tombola(session):
     '''
     Does not work
@@ -81,6 +72,18 @@ def marrow(session):
 '''
 (MOSTLY) FINISHED METHODS
 '''
+
+def getColtzan(session):
+    '''
+    Needs soup.
+    '''
+    query = {'type': 'approach'}
+    coltzanPage = session.post(coltzanURL, query).content
+    with open('dump/dumpColtzan.html', 'w') as dump:
+        dump.write(coltzanPage.encode('ascii', 'xmlcharrefreplace'))
+    if(re.findall('young', coltzanURL)):
+        return True
+    return False
 
 def getToys(session):
     query = {'go': 1}
