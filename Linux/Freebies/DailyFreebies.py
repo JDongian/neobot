@@ -46,18 +46,6 @@ def metor(session):
     if(re.findall('dream', meteorURL)):
         return False
     return True
-
-def tombola(session):
-    '''
-    Does not work
-    '''
-    tombolaPage = session.post(tombolaURL).content
-    with open('DUMP.html', 'w') as dump:
-        dump.write(tombolaPage.encode('ascii', 'xmlcharrefreplace'))
-    if(re.findall('win', tombolaPage)):
-        return True
-    return False
-
 def marrow(session):
     '''
     Needs avail. checking
@@ -72,6 +60,18 @@ def marrow(session):
 '''
 (MOSTLY) FINISHED METHODS
 '''
+
+def getTombola(session):
+    '''
+    Needs soup.
+    '''
+    header = {'Referer': 'http://www.neopets.com/island/tombola.phtml'}
+    tombolaPage = session.post(tombolaURL, headers=header).content
+    with open('dump/dumpTombola.html', 'w') as dump:
+        dump.write(tombolaPage.encode('ascii', 'xmlcharrefreplace'))
+    if(re.findall('win', tombolaPage)):
+        return True
+    return False
 
 def getColtzan(session):
     '''
