@@ -26,11 +26,13 @@ Instructions
 To run the freebie collector, navigate to neobot/Linux/Freebies and run harvest.py. Records of the pages as you collected the freebie are located in neobet/Lunix/Freebies/dump/.
 
 
-Coming Features (expect these within the coming week!)
+Coming Features
 ======
-Fashion fever autoplay
-Coconut shy autoplay
-Daily question autoplay
-Farie crossword autoplay
-Deamon auto-scheduler
+Expect these within the coming week!
+ 
+* Fashion fever autoplay
+* Coconut shy autoplay
+* Daily question autoplay
+* Farie crossword autoplay
+* Deamon auto-scheduler
 
