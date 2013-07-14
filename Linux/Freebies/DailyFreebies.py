@@ -69,7 +69,7 @@ Helper functions
 
 def _get_DP():
     answer_page = requests.get(answers_URL).content
-    answer = re.findall('</strong> ([A-Z].*?)<br', answer_page)
+    answer = re.findall('</strong> ([A-Z0-9].*?)<br', answer_page)
     date = re.findall('<title>.*?(\d+).*?</title', answer_page)
     if answer and date:
         return answer[0], date[0]
