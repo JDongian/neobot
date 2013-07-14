@@ -9,6 +9,12 @@ config.config.defaults['defaultDelay'] = 0
 config.config.defaults['actionDelay'] = 0
 config.config.defaults['typingDelay'] = 0
 
+gamePos = -1
+
+def setGamePos(pos):
+    global gamePos
+    gamePos = pos
+
 ###
 ### Keyboard out
 ###
@@ -48,8 +54,6 @@ def outClick(postDelay=0):
     clickAbs(mousePos(), postDelay)
 
 def outMov(coord, mode, click=False, postDelay=0):
-    global gamePos
-
     if mode == 'abs':
         rawinput.absoluteMotion(coord[0], coord[1], postDelay)
     elif mode == 'rel':
@@ -74,7 +78,7 @@ def clickRel(relPos, downTime):
     global gamePos
 
     if gamePos == -1:
-        print 'Error: gamePos undefined.'
+        raise Exeption('Error: gamePos undefined.')
         return False
     if relPos[0] > gamePos[1][0] or relPos[1] > gamePos[1][1]:
         print 'Error: position out of bounds.'
