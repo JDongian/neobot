@@ -2,6 +2,8 @@ import re
 import requests
 import json
 import getpass
+from BeautifulSoup import BeautifulSoup
+import datetime
 
 lunarGetURL = 'http://www.neopets.com/shenkuu/lunar/?show=puzzle'
 lunarPostURL = 'http://www.neopets.com/shenkuu/lunar/results.phtml'
@@ -23,6 +25,9 @@ meteorURL = 'http://www.neopets.com/moon/process_meteor.phtml'
 plushieURL = 'http://www.neopets.com/faerieland/tdmbgpop.phtml'
 fishingURL = 'http://www.neopets.com/water/fishing.phtml'
 hideURL = 'http://www.neopets.com/games/process_hideandseek.phtml'
+answers_URL = 'http://www.tdnforums.com/index.php?/rss/forums/3-faerie-crossword-answers-from-tdn/'
+DP_URL = 'http://www.neopets.com/community/index.phtml'
+
 
 def hide(session):
     '''
@@ -57,9 +62,44 @@ def marrow(session):
         return False
     return True
 
+
+'''
+Helper functions
+'''
+
+def _get_DP():
+    answer_page = requests.get(answers_URL).content
+    answer = re.findall('</strong> ([A-Z].*?)<br', answer_page)
+    date = re.findall('<title>.*?(\d+).*?</title', answer_page)
+    if answer and date:
+        return answer[0], date[0]
+    else:
+        return False
+
 '''
 (MOSTLY) FINISHED METHODS
 '''
+
+def get_puzzle(session):
+    answer, neodate = _get_DP()
+    question_page = requests.get(DP_URL).content
+    soup = BeautifulSoup(question_page)
+    for i in range(1,5):
+        if re.findall(answer, str(soup.findAll('option', {'value': i})[0])):
+            answer = i
+            break
+    query = {
+        'trivia_date': str(datetime.date.today())[:-2]+neodate,
+        'trivia_response': int(answer),
+        'submit': 'Submit'
+    }
+    header = {'Referer': DP_URL}
+    puzzle_page = session.post(DP_URL, query, headers=header).content
+    with open('dump/dumpDP.html', 'w') as dump:
+        dump.write(puzzle_page.encode('ascii', 'xmlcharrefreplace'))
+    if(re.findall('NP', puzzle_page)):
+        return True
+    return False
 
 def getTombola(session):
     '''
