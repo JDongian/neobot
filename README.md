@@ -13,10 +13,12 @@ Have fun with this!
 
 
 ####Dependanices
-
+In order of importance:
 * python2.7
 * python-requests
+* python-bs4
 * python-dogtail
+* python-imaging (PIL)
 
 
 ####Instructions
