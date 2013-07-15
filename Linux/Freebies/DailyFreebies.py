@@ -2,7 +2,7 @@ import re
 import requests
 import json
 import getpass
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import datetime
 
 lunarGetURL = 'http://www.neopets.com/shenkuu/lunar/?show=puzzle'
@@ -291,7 +291,8 @@ def login(login_header={}):
     if(re.findall('NC:', response.content)):
         print 'Login successful as:', s.cookies['neoremember']
         return s
-    return response
+    print 'Unsuccessful login.'
+    return s
 
 if __name__ == '__main__':
     print 'Herpaderp'
