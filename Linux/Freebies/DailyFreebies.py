@@ -297,14 +297,16 @@ def getLunar(session):
         return re.findall('items/([\w\d _,]+)\.gif', lunarPage)[0]
     return False
 
-def login():
+def login(login_header={}):
     s = requests.session()
     login = {'username':raw_input('Username: '),'password':getpass.getpass()}
-    s.post('http://www.neopets.com/login.phtml', login).content
-    if('neoremember' in s.cookies.keys()):
+    response = s.post('http://www.neopets.com/login.phtml', login,
+            headers=login_header)
+    if(re.findall('NC:', response.content)):
         print 'Login successful as:', s.cookies['neoremember']
         return s
-    return False
+    print 'Unsuccessful login.'
+    return s
 
 if __name__ == '__main__':
     print 'Herpaderp'
