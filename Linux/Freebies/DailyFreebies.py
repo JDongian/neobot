@@ -1,8 +1,9 @@
+import operator
 import re
 import requests
 import json
 import getpass
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import datetime
 
 lunarGetURL = 'http://www.neopets.com/shenkuu/lunar/?show=puzzle'
@@ -76,6 +77,16 @@ def _get_DP():
     else:
         return False
 
+def _get_crossword():
+    answer_page = requests.get(answers_URL).content
+    across = re.findall('Across:</strong><br />([.\n]*?)<td', answer_page)
+    down = re.findall('Down:</strong><br />([.\n]*?)<br', answer_page)
+    if across and down:
+        return (re.findall('[0-9]\. (.*?)<br', across),
+                re.findall('[0-9]\. (.*?)<br', down))
+    else:
+        return False
+
 '''
 (MOSTLY) FINISHED METHODS
 '''
@@ -85,6 +96,9 @@ def get_puzzle(session):
     question_page = requests.get(DP_URL).content
     soup = BeautifulSoup(question_page)
     for i in range(1,5):
+        #needs on_fail action: happens when neopets does a random poll.
+        #if re.findall(answer, str(soup.findAll('option', {'value': i}))):
+        #hotfix
         if re.findall(answer, str(soup.findAll('option', {'value': i})[0])):
             answer = i
             break
