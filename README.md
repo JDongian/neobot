@@ -22,8 +22,26 @@ In order of importance:
 
 
 ####Instructions
+
 To run the freebie collector, navigate to neobot/Linux/Freebies and run harvest.py. Records of the pages as you collected the freebie are located in neobet/Lunix/Freebies/dump/.
 
+###Windows
+Make sure to have python2.7, python-requests, and python-bs4 installed before continuing.
+As of now, you can clone the repo and navigate to neobot/Linux/Freebies and run:
+$ python harvest.py
+and run the freebie collector!
+
+###Mac OS
+Make sure to have run:
+$ brew install python-requests
+$ brew install python-bs4
+before continuing.
+As of now, you can clone the repo and navigate to neobot/Linux/Freebies and run:
+$ python harvest.py
+and run the freebie collector!
+
+###Linux
+You don't need instructions!
 
 ####Upcoming Features
 
