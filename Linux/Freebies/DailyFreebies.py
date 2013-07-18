@@ -5,6 +5,7 @@ import json
 import getpass
 from bs4 import BeautifulSoup
 import datetime
+from pprint import pprint
 
 lunarGetURL = 'http://www.neopets.com/shenkuu/lunar/?show=puzzle'
 lunarPostURL = 'http://www.neopets.com/shenkuu/lunar/results.phtml'
@@ -26,8 +27,10 @@ meteorURL = 'http://www.neopets.com/moon/process_meteor.phtml'
 plushieURL = 'http://www.neopets.com/faerieland/tdmbgpop.phtml'
 fishingURL = 'http://www.neopets.com/water/fishing.phtml'
 hideURL = 'http://www.neopets.com/games/process_hideandseek.phtml'
-answers_URL = 'http://www.tdnforums.com/index.php?/rss/forums/3-faerie-crossword-answers-from-tdn/'
 DP_URL = 'http://www.neopets.com/community/index.phtml'
+crossword_URL = 'http://www.neopets.com/games/crossword/crossword.phtml'
+
+answers_URL = 'http://www.tdnforums.com/index.php?/rss/forums/3-faerie-crossword-answers-from-tdn/'
 
 
 def hide(session):
@@ -79,17 +82,73 @@ def _get_DP():
 
 def _get_crossword():
     answer_page = requests.get(answers_URL).content
-    across = re.findall('Across:</strong><br />([.\n]*?)<td', answer_page)
-    down = re.findall('Down:</strong><br />([.\n]*?)<br', answer_page)
+    across = re.findall('Across:</strong><br />\s+([^`]*?)\s*<td', answer_page)
+    down = re.findall('Down:</strong><br />\s+([^`]*?)\s*<td', answer_page)
     if across and down:
-        return (re.findall('[0-9]\. (.*?)<br', across),
-                re.findall('[0-9]\. (.*?)<br', down))
+        return [re.findall('(\d+)\.\s+(.*?)<br', across[0]),
+                re.findall('(\d+)\.\s+(.*?)<br', down[0])]
     else:
         return False
 
 '''
 (MOSTLY) FINISHED METHODS
 '''
+
+def get_crossword(session, header={}):
+    header['Referer'] = 'http://www.neopets.com/games/crossword/index.phtml'
+    crossword = session.post(crossword_URL, headers=header).content
+    soup = BeautifulSoup(crossword)
+
+    crossword_table = soup.find_all('table', width=455, height=455)[0]
+    rows = crossword_table.find_all('tr')
+
+    crossword_model = []
+    for r in rows:
+        current_row = []
+        for e in r.find_all('td'):
+            if e.find_all('a'):
+                current_row.append(str(e['background'])[-6:-4])
+            else:
+                current_row.append('  ')
+        crossword_model.append(current_row)
+    #print ''
+    #for r in crossword_model: print r
+
+    answers = _get_crossword()
+    answers = zip(answers[0], ['across']*len(answers[0]))+zip(answers[1], ['down']*len(answers[1]))
+    #print answers
+
+    crossword_positions = {}
+    for row in xrange(len(crossword_model)):
+        for col in xrange(len(crossword_model[0])):
+            current = crossword_model[row][col]
+            if current == '  ':
+                continue
+            elif current != 'll':
+                if row < len(crossword_model)-1:
+                    if crossword_model[row+1][col] == 'll':
+                        crossword_positions[current+u' down'] =  col, row
+                if col < len(crossword_model[0])-1:
+                    if crossword_model[row][col+1] == 'll':
+                        crossword_positions[current+u' across'] = col, row
+    #pprint(crossword_positions)
+
+    header['Referer'] = 'http://www.neopets.com/games/crossword/crossword.phtml'
+    for ans, direction in sorted(answers, key=lambda x: int(x[0][0])):
+        print ans, direction
+        query = {
+            'x_word': ans[1],
+            'showclue': ans[0]+' '+direction,
+            'x_clue_row': crossword_positions[ans[0].zfill(2)+' '+direction][1]+1,
+            'x_clue_col': crossword_positions[ans[0].zfill(2)+' '+direction][0]+1,
+            'x_clue_dir': (lambda f: {'across': 1, 'down': 2}[f])(direction)
+        }
+    #    print query
+        crossword_page = session.post(crossword_URL, query, headers=header).content
+        with open('dump/dumpCrosswords.html', 'w') as dump:
+            dump.write(crossword_page.encode('ascii', 'xmlcharrefreplace'))
+    if 1:
+        return True
 
 def get_puzzle(session):
     answer, neodate = _get_DP()
@@ -296,7 +355,7 @@ def login(login_header={}):
     login = {'username':raw_input('Username: '),'password':getpass.getpass()}
     response = s.post('http://www.neopets.com/login.phtml', login,
             headers=login_header)
-    if(re.findall('NC:', response.content)):
+    if(re.findall(login['username'], response.content)):
         print 'Login successful as:', s.cookies['neoremember']
         return s
     print 'Unsuccessful login.'
