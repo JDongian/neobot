@@ -94,14 +94,8 @@ def _get_crossword():
 def get_puzzle(session):
     answer, neodate = _get_DP()
     question_page = requests.get(DP_URL).content
-    soup = BeautifulSoup(question_page)
-    for i in range(1,5):
-        #needs on_fail action: happens when neopets does a random poll.
-        #if re.findall(answer, str(soup.findAll('option', {'value': i}))):
-        #hotfix
-        if re.findall(answer, str(soup.findAll('option', {'value': i})[0])):
-            answer = i
-            break
+    answer = re.findall('\'(\d)\'>'+answer+'</option>', question_page)[0]
+    print answer
     query = {
         'trivia_date': str(datetime.date.today())[:-2]+neodate,
         'trivia_response': int(answer),
