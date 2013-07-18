@@ -3,16 +3,16 @@ Neobot
 
 Automated neopets income generation!
 
-Currently the only thing that works is Freebies.harvest, but it works well and should be cross
-platform!
+Currently the only thing that works is Linux.Freebies.harvest, but it works well and should be cross
+platform! Just run harvest.py, a frontend-ish for DailyFreebies.py.
 
-I've scrapped any progress in Windows in favor of Linux development. I will work again on Windows using pywin32 when I have a few flash games in Linux working.
+I've scrapped any progress in Windows in favor of Linux development. Windows word using pywin32 will when I have a few flash games in Linux working. I'm too dumb to figure out how to do the relative imports for my Linux.Robots, so this may take a while.
 
 
 Have fun with this!
 
 
-####Dependanices
+##Dependanices
 In order of importance:
 * python2.7
 * python-requests
@@ -21,7 +21,7 @@ In order of importance:
 * python-imaging (PIL)
 
 
-####Instructions
+##Instructions
 
 To run the freebie collector, navigate to neobot/Linux/Freebies and run harvest.py. Records of the pages as you collected the freebie are located in neobet/Lunix/Freebies/dump/.
 
@@ -46,11 +46,12 @@ $ git clone git@github.com:JDong820/neobot.git neobot/
 $ cd neobot/Linux/Freebies
 $ python harvest.py
 
-####Finished Features
+##Finished Features
+
 In order of completion:
 
 * Faerie crossword solver (uses tdn) **NEW!**
-* Daily puzzle 
+* Daily puzzle (uses tdn)
 * Coltzan
 * Tombola
 * Anchor management (Krawken)
@@ -67,17 +68,26 @@ In order of completion:
 * Geripikatu Tomb
 * Lunar puzzle
 
-####Upcoming Features
+##Upcoming Features
 
 Expect (some of!) these within the coming week!
 
 * Potato counter 1 autoplay
-* Fashion fever autoplay
-* Coconut shy autoplay
 * Deamon auto-scheduler
+* Better frontend
+* Kacheek Seek
+* Marrow Guessing
 
-####Known Bugs
-* Everything
-* Logging in isn't registered atm
-* Some console feedback is missing
+And if I get mouse control and screen capture working, this is the priority list of flash games, most of which I have existing logic code for.
+* Fashion Fever
+* Punchbag bob
+* Coconut Shy
+* Tug-o-War
+* Ice Cream Machine
+* The Buzzer Game
+* Attack of the Revenge
 
+##Known Bugs
+* Logging in isn't registered atm in DailyFreebies.py, and should be handled separately.
+* Some console feedback is missing from harvest.py
+* There's probably a bug in every file...
