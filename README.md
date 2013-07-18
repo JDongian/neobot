@@ -41,14 +41,43 @@ $ python harvest.py
 and run the freebie collector!
 
 ###Linux
-You don't need instructions!
+$ apt-get install python-requests python-bs4
+$ git clone git@github.com:JDong820/neobot.git neobot/
+$ cd neobot/Linux/Freebies
+$ python harvest.py
+
+####Finished Features
+In order of completion:
+
+* Faerie crossword solver (uses tdn) **NEW!**
+* Daily puzzle 
+* Coltzan
+* Tombola
+* Anchor management (Krawken)
+* Toy Box
+* Blue Grundo Plushie
+* Fruit machine
+* Bank interest
+* Apple Bobbing
+* Obsidan quarry
+* Underground Fishing
+* Free Jelly
+* Free Omelette
+* Rich Slorg
+* Geripikatu Tomb
+* Lunar puzzle
 
 ####Upcoming Features
 
 Expect (some of!) these within the coming week!
- 
+
+* Potato counter 1 autoplay
 * Fashion fever autoplay
 * Coconut shy autoplay
-* Farie crossword autoplay
 * Deamon auto-scheduler
+
+####Known Bugs
+* Everything
+* Logging in isn't registered atm
+* Some console feedback is missing
 
