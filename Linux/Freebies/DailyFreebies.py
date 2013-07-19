@@ -126,16 +126,15 @@ def get_crossword(session, header={}):
                 continue
             elif current != 'll':
                 if row < len(crossword_model)-1:
-                    if crossword_model[row+1][col] == 'll':
+                    if crossword_model[row+1][col] != '  ':
                         crossword_positions[current+u' down'] =  col, row
                 if col < len(crossword_model[0])-1:
-                    if crossword_model[row][col+1] == 'll':
+                    if crossword_model[row][col+1] != '  ':
                         crossword_positions[current+u' across'] = col, row
     #pprint(crossword_positions)
 
     header['Referer'] = 'http://www.neopets.com/games/crossword/crossword.phtml'
     for ans, direction in sorted(answers, key=lambda x: int(x[0][0])):
-        print ans, direction
         query = {
             'x_word': ans[1],
             'showclue': ans[0]+' '+direction,
@@ -143,7 +142,7 @@ def get_crossword(session, header={}):
             'x_clue_col': crossword_positions[ans[0].zfill(2)+' '+direction][0]+1,
             'x_clue_dir': (lambda f: {'across': 1, 'down': 2}[f])(direction)
         }
-    #    print query
+        #print query
         crossword_page = session.post(crossword_URL, query, headers=header).content
         with open('dump/dumpCrosswords.html', 'w') as dump:
             dump.write(crossword_page.encode('ascii', 'xmlcharrefreplace'))
