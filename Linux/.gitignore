@@ -1,0 +1,9 @@
+*.pyo
+*.pyc
+*.swp
+*.swo
+*.swn
+*.sw*
+Tools
+Utils
+

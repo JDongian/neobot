@@ -6,7 +6,8 @@ Automated neopets income generation!
 Currently the only thing that works is Linux.Freebies.harvest, but it works well and should be cross
 platform! Just run harvest.py, a frontend-ish for DailyFreebies.py.
 
-I've scrapped any progress in Windows in favor of Linux development. Windows word using pywin32 will when I have a few flash games in Linux working. I'm too dumb to figure out how to do the relative imports for my Linux.Robots, so this may take a while.
+I've scrapped any progress in Windows in favor of Linux development. Windows work using pywin32 will
+continue when I have a few flash games in Linux working. Should be soon.
 
 
 Have fun with this!
@@ -50,7 +51,8 @@ $ python harvest.py
 
 In order of completion:
 
-* Faerie crossword solver (uses tdn) **NEW!**
+* Potato counter **NEW!**
+* Faerie crossword solver (uses tdn)
 * Daily puzzle (uses tdn)
 * Coltzan
 * Tombola
@@ -87,7 +89,7 @@ And if I get mouse control and screen capture working, this is the priority list
 * The Buzzer Game
 * Attack of the Revenge
 
-##Known Bugs
+##Known Bugs/Issues
 * Logging in isn't registered atm in DailyFreebies.py, and should be handled separately.
 * Some console feedback is missing from harvest.py
-* There's probably a bug in every file...
+* There's probably a bug in every file if you look hard enough...

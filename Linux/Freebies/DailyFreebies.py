@@ -1,4 +1,5 @@
 import operator
+import random
 import re
 import requests
 import json
@@ -6,6 +7,7 @@ import getpass
 from bs4 import BeautifulSoup
 import datetime
 from pprint import pprint
+import time
 
 lunarGetURL = 'http://www.neopets.com/shenkuu/lunar/?show=puzzle'
 lunarPostURL = 'http://www.neopets.com/shenkuu/lunar/results.phtml'
@@ -26,6 +28,7 @@ coltzanURL = 'http://www.neopets.com/desert/shrine.phtml'
 meteorURL = 'http://www.neopets.com/moon/process_meteor.phtml'
 plushieURL = 'http://www.neopets.com/faerieland/tdmbgpop.phtml'
 fishingURL = 'http://www.neopets.com/water/fishing.phtml'
+potato_URL = 'http://www.neopets.com/medieval/potatocounter.phtml'
 hideURL = 'http://www.neopets.com/games/process_hideandseek.phtml'
 DP_URL = 'http://www.neopets.com/community/index.phtml'
 crossword_URL = 'http://www.neopets.com/games/crossword/crossword.phtml'
@@ -71,6 +74,17 @@ def marrow(session):
 Helper functions
 '''
 
+def login(login_header={}):
+    s = requests.session()
+    login = {'username':raw_input('Username: '),'password':getpass.getpass()}
+    response = s.post('http://www.neopets.com/login.phtml', login,
+            headers=login_header)
+    if(re.findall(login['username'], response.content)):
+        print 'Login successful as:', s.cookies['neoremember']
+        return s
+    print 'Unsuccessful login.'
+    return s
+
 def _get_DP():
     answer_page = requests.get(answers_URL).content
     answer = re.findall('</strong> ([A-Z0-9].*?)<br', answer_page)
@@ -93,6 +107,18 @@ def _get_crossword():
 '''
 (MOSTLY) FINISHED METHODS
 '''
+
+def get_potato(session):
+    for i in xrange(3):
+        potato_page = session.get(potato_URL).content
+        soup = BeautifulSoup(potato_page)
+        potato_table = soup.find_all('table', align='center')[0]
+        potato_count = len(re.findall('gif', str(potato_table)))
+        form = {'type': 'guess', 'guess': potato_count}
+        time.sleep((potato_count/10)*(1+random.random()))
+        potato_page = session.post(potato_URL, form).content
+    with open('dump/dumpPotato.html', 'w') as dump:
+        dump.write(''.join([c for c in potato_page if ord(c) < 128]))
 
 def get_crossword(session, header={}):
     header['Referer'] = 'http://www.neopets.com/games/crossword/index.phtml'
@@ -145,7 +171,7 @@ def get_crossword(session, header={}):
         #print query
         crossword_page = session.post(crossword_URL, query, headers=header).content
         with open('dump/dumpCrosswords.html', 'w') as dump:
-            dump.write(crossword_page.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+            pass#dump.write(crossword_page.decode('utf-8').encode('ascii', 'ignore'))
     if 1:
         return True
 
@@ -162,7 +188,7 @@ def get_puzzle(session):
     header = {'Referer': DP_URL}
     puzzle_page = session.post(DP_URL, query, headers=header).content
     with open('dump/dumpDP.html', 'w') as dump:
-        dump.write(puzzle_page.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(puzzle_page.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('NP', puzzle_page)):
         return True
     return False
@@ -174,7 +200,7 @@ def getTombola(session):
     header = {'Referer': 'http://www.neopets.com/island/tombola.phtml'}
     tombolaPage = session.post(tombolaURL, headers=header).content
     with open('dump/dumpTombola.html', 'w') as dump:
-        dump.write(tombolaPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(tombolaPage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('win', tombolaPage)):
         return True
     return False
@@ -186,7 +212,7 @@ def getColtzan(session):
     query = {'type': 'approach'}
     coltzanPage = session.post(coltzanURL, query).content
     with open('dump/dumpColtzan.html', 'w') as dump:
-        dump.write(coltzanPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(coltzanPage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('young', coltzanURL)):
         return True
     return False
@@ -195,7 +221,7 @@ def getToys(session):
     query = {'go': 1}
     toyPage = session.post(toyURL, query).content
     with open('dump/dumpToy.html', 'w') as dump:
-        dump.write(toyPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(toyPage.decode('utf-8').encode('ascii', 'ignore'))
     winnings = re.findall('items/([\d\w, _]+)', toyPage)
     if(winnings):
         return winnings[0]
@@ -204,7 +230,7 @@ def getToys(session):
 def getTomb(session):
     tombPage = session.post(tombURL).content
     with open('dump/dumpTomb.html', 'w') as dump:
-        dump.write(tombPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(tombPage.decode('utf-8').encode('ascii', 'ignore'))
     winnings = re.findall('items/([\d\w, _]+)\.gif', tombPage)
     if(winnings):
         return winnings[0]
@@ -221,7 +247,7 @@ def getKrawken(session):
     query = {'action' : ck}
     krawkenPage = session.post(krawkenURL, query).content
     with open('dump/dumpKrawken.html', 'w') as dump:
-        dump.write(krawkenPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(krawkenPage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('prize-item-name">([\w\d ,\._]+)<', krawkenPage)):
         return re.findall('prize-item-name">([\w\d ,\._]+)<', krawkenPage)[0]
     return False
@@ -229,7 +255,7 @@ def getKrawken(session):
 def getObsidian(session):
     obsidianPage = session.get(obsidianURL).content
     with open('dump/dumpObsidian.html', 'w') as dump:
-        dump.write(obsidianPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(obsidianPage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('shakes', obsidianPage)):
         return False
     return 'Obsidian get'
@@ -246,7 +272,7 @@ def getFruit(session):
         return False
     fruitPage = session.post(fruitURL, query).content
     with open('dump/dumpFruit.html', 'w') as dump:
-        dump.write(fruitPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(fruitPage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('this is not a win', fruitURL)):
         return 'nothing'
     winnings = re.findall('you won a <b>([\d\w ]+)</b>', fruitPage)
@@ -258,7 +284,7 @@ def getApple(session):
     #query = {'bobbing': 1}
     applePage = session.get(appleURL).content
     with open('dump/dumpApple.html', 'w') as dump:
-        dump.write(applePage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(applePage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('<b>inventory</b>', applePage)):
         winnings = re.findall('80\'><br><b>([\d\w ,\.]+)</b></center>', applePage)
         if winnings:
@@ -267,10 +293,12 @@ def getApple(session):
     return False
 
 def getPlushie(session):
+    import codecs
     query = {'talkto':1}
     plushiePage = session.post(plushieURL, query).content
     with open('dump/dumpPlushie.html', 'w') as dump:
-        dump.write(plushiePage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        #plushiePage = unicode(plushiePage.strip(codecs.BOM_UTF8), 'utf-8')
+        pass#dump.write(plushiePage)#.decode('utf-8').encode('ascii', 'ignore'))
     winnings = re.findall('items/([\d\w, _]+)\.gif', plushiePage)
     if(winnings):
         return winnings[0]
@@ -282,7 +310,7 @@ def getFish(session):
     query = {'go_fish':1}
     fishingPage = session.post(fishingURL, query).content
     with open('dump/dumpFishing.html', 'w') as dump:
-        dump.write(fishingPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(fishingPage.decode('utf-8').encode('ascii', 'ignore'))
     winnings = re.findall('items/([\d\w, _]+)\.gif', fishingPage)
     if(winnings):
         return winnings[0]
@@ -292,7 +320,7 @@ def getSlorg(session):
     query = {'slorg_payout': 'yes'}
     slorgPage = session.post(slorgURL, query).content
     with open('dump/dumpSlorg.html', 'w') as dump:
-        dump.write(slorgPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(slorgPage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('rich', slorgPage)):
         return re.findall('<strong>([\d\.,]+) N', slorgPage)[0]
     return False
@@ -302,7 +330,7 @@ def getInterest(session):
     session.post(bankPostURL, query)
     bankPage = session.get(bankGetURL).content
     with open('dump/dumpBank.html', 'w') as dump:
-        dump.write(bankPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(bankPage.decode('utf-8').encode('ascii', 'ignore'))
     interest = re.findall('([\d, ]+)NP', bankPage)
     if(re.findall('You have', bankPage)):
         return interest[0]
@@ -312,7 +340,7 @@ def getJelly(session):
     query = {'type':'get_jelly'}
     jellyPage = session.post(jellyURL, query).content
     with open('dump/dumpJelly.html', 'w') as dump:
-        dump.write(jellyPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(jellyPage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('You take some', jellyPage)):
         return re.findall('items/([\d\w, _]+)', jellyPage)[0]
     if(re.findall('eaten!!!', jellyPage)):
@@ -324,7 +352,7 @@ def getOmelette(session):
     query = {'type':'get_omelette'}
     omelettePage = session.post(omeletteURL, query).content
     with open('dump/dumpOmelette.html', 'w') as dump:
-        dump.write(omelettePage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(omelettePage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('(Sabre-X)|(Gone!!!)', omelettePage)):
         print 'Aready taken'
         return False
@@ -344,21 +372,10 @@ def getLunar(session):
     answer = {'submitted':'true','phase_choice':answer}
     lunarPage = session.post(lunarPostURL, answer).content
     with open('dump/dumpLunar.html', 'w') as dump:
-        dump.write(lunarPage.decode('utf-8').encode('ascii', 'xmlcharrefreplace'))
+        pass#dump.write(lunarPage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('correct', lunarPage)):
         return re.findall('items/([\w\d _,]+)\.gif', lunarPage)[0]
     return False
-
-def login(login_header={}):
-    s = requests.session()
-    login = {'username':raw_input('Username: '),'password':getpass.getpass()}
-    response = s.post('http://www.neopets.com/login.phtml', login,
-            headers=login_header)
-    if(re.findall(login['username'], response.content)):
-        print 'Login successful as:', s.cookies['neoremember']
-        return s
-    print 'Unsuccessful login.'
-    return s
 
 if __name__ == '__main__':
     print 'Herpaderp'
