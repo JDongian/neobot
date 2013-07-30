@@ -29,28 +29,39 @@ To run the freebie collector, navigate to neobot/Linux/Freebies and run harvest.
 ###Windows
 Make sure to have python2.7, python-requests, and python-bs4 installed before continuing.
 As of now, you can clone the repo and navigate to neobot/Linux/Freebies and run:
+
 $ python harvest.py
+
 and run the freebie collector!
 
 ###Mac OS
 Make sure to have run:
+
 $ brew install python-requests
+
 $ brew install python-bs4
+
 before continuing.
 As of now, you can clone the repo and navigate to neobot/Linux/Freebies and run:
+
 $ python harvest.py
+
 and run the freebie collector!
 
 ###Linux
 $ apt-get install python-requests python-bs4
+
 $ git clone git@github.com:JDong820/neobot.git neobot/
+
 $ cd neobot/Linux/Freebies
+
 $ python harvest.py
 
 ##Finished Features
 
 In order of completion:
 
+* Avatar collector
 * Potato counter **NEW!**
 * Faerie crossword solver (uses tdn)
 * Daily puzzle (uses tdn)
@@ -74,10 +85,9 @@ In order of completion:
 
 Expect (some of!) these within the coming week!
 
-* Potato counter 1 autoplay
 * Deamon auto-scheduler
-* Better frontend
-* Kacheek Seek
+* Better frontend **<**
+* Kacheek Seek **<**
 * Marrow Guessing
 
 And if I get mouse control and screen capture working, this is the priority list of flash games, most of which I have existing logic code for.
@@ -87,9 +97,10 @@ And if I get mouse control and screen capture working, this is the priority list
 * Tug-o-War
 * Ice Cream Machine
 * The Buzzer Game
+* Meepit vs Feepit
 * Attack of the Revenge
 
 ##Known Bugs/Issues
-* Logging in isn't registered atm in DailyFreebies.py, and should be handled separately.
-* Some console feedback is missing from harvest.py
-* There's probably a bug in every file if you look hard enough...
+* Logging in isn't registered correctly in DailyFreebies.py, and should be handled better in general.
+* Console feedback is missing from harvest.py
+* There's probably a bug somewhere in every file if you look hard enough...
