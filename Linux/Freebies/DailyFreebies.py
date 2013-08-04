@@ -112,7 +112,12 @@ def get_potato(session):
     for i in xrange(3):
         potato_page = session.get(potato_URL).content
         soup = BeautifulSoup(potato_page)
-        potato_table = soup.find_all('table', align='center')[0]
+        potato_table = soup.find_all('table', align='center')
+        if potato_table:
+            potato_table = potato_table[0]
+        else:
+            print 'Done for the day.'
+            return False
         potato_count = len(re.findall('gif', str(potato_table)))
         form = {'type': 'guess', 'guess': potato_count}
         time.sleep((potato_count/10)*(1+random.random()))
