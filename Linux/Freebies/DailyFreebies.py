@@ -183,14 +183,16 @@ def get_crossword(session, header={}):
 def get_puzzle(session):
     answer, neodate = _get_DP()
     question_page = requests.get(DP_URL).content
-    answer = re.findall('\'(\d)\'>'+answer+'.*?</option>', question_page)[0]
-    print answer
+    result = re.findall('\'(\d)\'>.*?'+answer+'.*?</option>',
+            question_page, re.IGNORECASE)
+    answer = result[0]
     query = {
-        'trivia_date': str(datetime.date.today())[:-2]+neodate,
-        'trivia_response': int(answer),
+        'trivia_date': str(datetime.date.today())[:-2]+neodate.zfill(2),
+        'trivia_response': int(answer)+1,
         'submit': 'Submit'
     }
     header = {'Referer': DP_URL}
+    print query, header
     puzzle_page = session.post(DP_URL, query, headers=header).content
     with open('dump/dumpDP.html', 'w') as dump:
         pass#dump.write(puzzle_page.decode('utf-8').encode('ascii', 'ignore'))
