@@ -4,12 +4,15 @@ from bs4 import BeautifulSoup
 import re
 import getpass
 import requests
+import random
 
 shopwizard_URL = 'http://www.neopets.com/market.phtml'
 
 
 def login(cred={}, login_header={}):
     s = requests.session()
+    login_header['User-Agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0'
+    login_header['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
     if not cred:
         cred = {'username':raw_input('Username: '),'password':getpass.getpass()}
     response = s.post('http://www.neopets.com/login.phtml', cred,
@@ -58,7 +61,7 @@ if __name__=='__main__':
     while 1:
         item = raw_input('Item name: ')
         lowest = [99999, '', '']
-        for i in range(20):
+        for i in range(32):
             result = sorted(get_results(item, s), key=lambda r:
                     r[0])[0]
             if result[0] <= lowest[0]:
@@ -67,7 +70,7 @@ if __name__=='__main__':
             sys.stdout.flush()
             if lowest[0] == 1:
                 break
-            time.sleep(1)
+            time.sleep(0.2+random.random())
         print ''
         command = raw_input('Buy or retry? ')
         if command == 'buy':

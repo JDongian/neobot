@@ -183,7 +183,7 @@ def get_crossword(session, header={}):
 def get_puzzle(session):
     answer, neodate = _get_DP()
     question_page = requests.get(DP_URL).content
-    answer = re.findall('\'(\d)\'>'+answer+'</option>', question_page)[0]
+    answer = re.findall('\'(\d)\'>'+answer+'.*?</option>', question_page)[0]
     print answer
     query = {
         'trivia_date': str(datetime.date.today())[:-2]+neodate,
