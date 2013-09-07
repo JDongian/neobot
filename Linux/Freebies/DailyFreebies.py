@@ -92,12 +92,13 @@ def _get_DP():
     if answer and date:
         return answer[0], date[0]
     else:
+        print 'error on fetching answers'
         return False
 
 def _get_crossword():
     answer_page = requests.get(answers_URL).content
-    across = re.findall('Across:</strong><br />\s+([^`]*?)\s*<td', answer_page)
-    down = re.findall('Down:</strong><br />\s+([^`]*?)\s*<td', answer_page)
+    across = re.findall('Across:</strong><br />\s*([^`]*?)\s*<td', answer_page)
+    down = re.findall('Down:</strong><br />\s*([^`]*?)\s*<td', answer_page)
     if across and down:
         return [re.findall('(\d+)\.\s+(.*?)<br', across[0]),
                 re.findall('(\d+)\.\s+(.*?)<br', down[0])]
@@ -183,8 +184,12 @@ def get_crossword(session, header={}):
 def get_puzzle(session):
     answer, neodate = _get_DP()
     question_page = requests.get(DP_URL).content
-    result = re.findall('\'(\d)\'>.*?'+answer+'.*?</option>',
+    with open('dump/dumpDP.html', 'w') as dump:
+        dump.write(question_page.decode('utf-8').encode('ascii', 'ignore'))
+    result = re.findall("'(\d)'>.*?"+answer+'.*?</option>',
             question_page, re.IGNORECASE)
+    print answer
+    print result
     answer = result[0]
     query = {
         'trivia_date': str(datetime.date.today())[:-2]+neodate.zfill(2),
@@ -192,10 +197,10 @@ def get_puzzle(session):
         'submit': 'Submit'
     }
     header = {'Referer': DP_URL}
-    print query, header
+    #print query, header
     puzzle_page = session.post(DP_URL, query, headers=header).content
     with open('dump/dumpDP.html', 'w') as dump:
-        pass#dump.write(puzzle_page.decode('utf-8').encode('ascii', 'ignore'))
+        dump.write(puzzle_page.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('NP', puzzle_page)):
         return True
     return False
@@ -363,7 +368,7 @@ def getOmelette(session):
     if(re.findall('(Sabre-X)|(Gone!!!)', omelettePage)):
         print 'Aready taken'
         return False
-    if(re.findall('... and', omelettePage)):
+    if(re.findall('items/([\d\w, _]+)\.gif\' width=80', omelettePage)):
         return re.findall('items/([\d\w, _]+)\.gif\' width=80',
                 omelettePage)[0]
     return False
