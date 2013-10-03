@@ -8,7 +8,7 @@ import random
 
 Point = namedtuple('Point', ['x', 'y'])
 
-def _get_window():
+def get_window():
     """Return root window.
     """
     return gdk.get_default_root_window()
@@ -39,16 +39,22 @@ def _gdk_pull_screen(window, save_screen=False):
     return screen
 '''
 
-def get_screen(region):
+def get_screen(region, window=False, grab_all=False):
     """Screen capture wrapper function.
     Input is a region consisting of
     a pair of Points, top left and bottom right.
     """
+    #Eventually, add support for negative region dimensions
     #For Linux, gdk pull screen seems to work.
-    return _gdk_pull_screen(_get_window(), region[0], region[1])
+    if not window:
+        window = get_window()
+    if grab_all:
+        return _gdk_pull_region(window, Point(0,0), Point(*window.get_size()))
+    else:
+        return _gdk_pull_region(_get_window(),
+                                Point(*region[0]),
+                                Point(abs(region[1][0]-region[1][1],
+                                      abs(region[1][0]-region[1][1]))))
 
 if __name__ == '__main__':
-    """Testing the module.
-    """
     get_screen().show()
-

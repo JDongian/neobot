@@ -27,7 +27,7 @@ def color_match(color_1, color_2, fuzz=0, mode='basic'):
         else:
             return False
     #Invalid color match mode. Abort!
-    print "ERROR: invalid mode selected for color_matches"
+    print "ERROR: invalid mode selected for color_match"
     return False
 
 def get_current_screen_pixel(point, relative=False):
@@ -55,9 +55,9 @@ def find_pixels(rgb, rgb_domain, fuzz=0, mode='basic', limit=0):
     results = []
     for x in xrange(rgb_domain.size[0]):
         for y in xrange(rgb_domain.size[1]):
-            if color_matches(rgb, rgb_domain.getpixel((x,y)), fuzz, mode):
+            if color_match(rgb, rgb_domain.getpixel((x,y)), fuzz, mode):
                 results.append((x, y))
-            if limit && len(results) >= limit:
+            if limit and (len(results) >= limit):
                 return results
     return results
 
@@ -122,68 +122,40 @@ def find_image(rgb_target, rgb_domain, region=False,
                     return (x,y)
     return (-1,-1)
 
-def find_lines(color, fuzz, rgb_im, im_pos,
-               sweeps, thickness, errorOver, errorUnder, mode):
+def find_lines(rgb_color, fuzz, rgb_domain,
+               sweeps, mode):
     """Return start and endpoints of homogeneous color lines.
-    mode = 'x' for vertical sweeps
-    mode = 'y' for horizontal sweeps
-    rgb_im = 0 for all screen
-    sweeps = 0 for sweeping every pixel
-    thickness = 0 for all results
     """
     segments = []
-    if rgb_im == 0:
-        rgb_im = ImageGrab.grab()
-    if mode == 'x':
-        print 'vertical scan'
-        step = int(rgb_im.size[0]/(sweeps+1))
-        if step < 1 or sweeps == 0:
-            step = 1
-        for x in range(0, rgb_im.size[0], step):
-            currLen = 0
-            for y in range(0, rgb_im.size[1]):
-                win32api.SetCursorPos((x+im_pos[0]+1, y+im_pos[1]+1))
-                if fuzzyMatch(rgb_im.getpixel((x,y)), color, fuzz):
-                    currLen += 1
+    print 'Scanning...'
+    step = max(1, int(rgb_domain.size[0 if\
+                      mode == 'x' else 1]/(max(sweeps, 1))))
+    for s in xrange(0, rgb_domain.size[0 if\
+                      mode == 'x' else 1], step):
+        curr_len = 0
+        for l in xrange(0, rgb_domain.size[1 if\
+                      mode == 'x' else 0]):
+            if color_match(rgb_domain.getpixel((s,l)), rgb_color, fuzz):
+                curr_len += 1
+            else:
+                if curr_len == 0:
+                    continue
+                segments.append(((s, l-curr_len) if\
+                        mode == 'x' else (s-curr_len, l), (s,l)))
+                curr_len = 0
+                continue
+                """
+                elif thickness == 0:
+                    segments.append(((s,l-currLen), (x,y)))
+                    currLen = 0
+                    continue
+                elif (thickness-errorUnder > currLen) or\
+                     (thickness+errorOver < currLen):
+                    currLen = 0
+                    continue
                 else:
-                    if currLen == 0:
-                        continue
-                    elif thickness == 0:
-                        segments.append(((x,y-currLen), (x,y)))
-                        currLen = 0
-                        continue
-                    elif (thickness-errorUnder > currLen) or\
-                       (thickness+errorOver < currLen):
-                        currLen = 0
-                        continue
-                    else:
-                        segments.append(((x,y-currLen), (x,y)))
-                        count = 0
-                        continue
-    if mode == 'y':
-        print 'horizontal scan'
-        step = int(rgb_im.size[1]/(sweeps+1))
-        if step < 1 or sweeps == 0:
-            step = 1
-        for y in range(0, rgb_im.size[1], step):
-            currLen = 0
-            for x in range(0, rgb_im.size[0]):
-                win32api.SetCursorPos((x+im_pos[0]+1, y+im_pos[1]+1))
-                if fuzzyMatch(rgb_im.getpixel((x,y)), color, fuzz):
-                    currLen += 1
-                else:
-                    if currLen == 0:
-                        continue
-                    elif thickness == 0:
-                        segments.append(((x-currLen,y), (x,y)))
-                        currLen = 0
-                        continue
-                    elif (thickness-errorUnder > currLen) or\
-                       (thickness+errorOver < currLen):
-                        currLen = 0
-                        continue
-                    else:
-                        segments.append(((x-currLen,y), (x,y)))
-                        count = 0
-                        continue
+                    segments.append(((x,y-currLen), (x,y)))
+                    count = 0
+                    continue
+                """
     return segments
