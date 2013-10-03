@@ -32,7 +32,6 @@ potato_URL = 'http://www.neopets.com/medieval/potatocounter.phtml'
 hideURL = 'http://www.neopets.com/games/process_hideandseek.phtml'
 DP_URL = 'http://www.neopets.com/community/index.phtml'
 crossword_URL = 'http://www.neopets.com/games/crossword/crossword.phtml'
-
 answers_URL = 'http://www.tdnforums.com/index.php?/rss/forums/3-faerie-crossword-answers-from-tdn/'
 
 
@@ -74,15 +73,21 @@ def marrow(session):
 Helper functions
 '''
 
-def login(login_header={}):
+def login(username=None, password=None, header={}):
     s = requests.session()
-    login = {'username':raw_input('Username: '),'password':getpass.getpass()}
-    response = s.post('http://www.neopets.com/login.phtml', login,
-            headers=login_header)
-    if(re.findall(login['username'], response.content)):
-        print 'Login successful as:', s.cookies['neoremember']
-        return s
-    print 'Unsuccessful login.'
+    if username and password:
+        user = {'username': username,
+                 'password': password}
+        print "Logging in as %s using local file" % username
+    else:
+        print "No LOGIN file found."
+        user = {'username':raw_input('Username: '),
+                 'password':getpass.getpass()}
+    response = s.post('http://www.neopets.com/login.phtml', params=user,
+                      headers=header)
+    if response.status_code != 200:
+        print 'Unsuccessful login.'
+        quit()
     return s
 
 def _get_DP():
