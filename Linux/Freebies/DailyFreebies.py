@@ -210,7 +210,7 @@ def get_puzzle(session):
         return True
     return False
 
-def getTombola(session):
+def get_tombola(session):
     '''
     Needs soup.
     '''
@@ -222,7 +222,7 @@ def getTombola(session):
         return True
     return False
 
-def getColtzan(session):
+def get_coltzan(session):
     '''
     Needs soup.
     '''
@@ -234,7 +234,7 @@ def getColtzan(session):
         return True
     return False
 
-def getToys(session):
+def get_toys(session):
     query = {'go': 1}
     toyPage = session.post(toyURL, query).content
     with open('dump/dumpToy.html', 'w') as dump:
@@ -244,7 +244,7 @@ def getToys(session):
         return winnings[0]
     return False
 
-def getTomb(session):
+def get_tomb(session):
     tombPage = session.post(tombURL).content
     with open('dump/dumpTomb.html', 'w') as dump:
         pass#dump.write(tombPage.decode('utf-8').encode('ascii', 'ignore'))
@@ -255,7 +255,7 @@ def getTomb(session):
         return 'Jackpot'
     return False
 
-def getKrawken(session):
+def get_krawken(session):
     krawkenPage = session.get(krawkenURL).content
     if(re.findall('more, huh?', krawkenPage)):
         print 'Krawken on cooldown.'
@@ -269,7 +269,7 @@ def getKrawken(session):
         return re.findall('prize-item-name">([\w\d ,\._]+)<', krawkenPage)[0]
     return False
 
-def getObsidian(session):
+def get_obsidian(session):
     obsidianPage = session.get(obsidianURL).content
     with open('dump/dumpObsidian.html', 'w') as dump:
         pass#dump.write(obsidianPage.decode('utf-8').encode('ascii', 'ignore'))
@@ -277,7 +277,7 @@ def getObsidian(session):
         return False
     return 'Obsidian get'
 
-def getFruit(session):
+def get_fruit(session):
     '''
     Works, win condition untested.
     '''
@@ -297,7 +297,7 @@ def getFruit(session):
         return winnings[0]
     return False
 
-def getApple(session):
+def get_apple(session):
     #query = {'bobbing': 1}
     applePage = session.get(appleURL).content
     with open('dump/dumpApple.html', 'w') as dump:
@@ -309,7 +309,7 @@ def getApple(session):
         return True
     return False
 
-def getPlushie(session):
+def get_plushie(session):
     import codecs
     query = {'talkto':1}
     plushiePage = session.post(plushieURL, query).content
@@ -323,7 +323,7 @@ def getPlushie(session):
         return re.findall('<b>([\d\w ,_\.]+)</b>!</div>', plushiePage)
     return False
 
-def getFish(session):
+def get_fish(session):
     query = {'go_fish':1}
     fishingPage = session.post(fishingURL, query).content
     with open('dump/dumpFishing.html', 'w') as dump:
@@ -333,7 +333,7 @@ def getFish(session):
         return winnings[0]
     return 'unknown state'
 
-def getSlorg(session):
+def get_slorg(session):
     query = {'slorg_payout': 'yes'}
     slorgPage = session.post(slorgURL, query).content
     with open('dump/dumpSlorg.html', 'w') as dump:
@@ -342,7 +342,7 @@ def getSlorg(session):
         return re.findall('<strong>([\d\.,]+) N', slorgPage)[0]
     return False
 
-def getInterest(session):
+def get_interest(session):
     query = {'type':'interest'}
     session.post(bankPostURL, query)
     bankPage = session.get(bankGetURL).content
@@ -353,7 +353,7 @@ def getInterest(session):
         return interest[0]
     return False
 
-def getJelly(session):
+def get_jelly(session):
     query = {'type':'get_jelly'}
     jellyPage = session.post(jellyURL, query).content
     with open('dump/dumpJelly.html', 'w') as dump:
@@ -365,7 +365,7 @@ def getJelly(session):
         return False
     return False
 
-def getOmelette(session):
+def get_omelette(session):
     query = {'type':'get_omelette'}
     omelettePage = session.post(omeletteURL, query).content
     with open('dump/dumpOmelette.html', 'w') as dump:
@@ -378,7 +378,7 @@ def getOmelette(session):
                 omelettePage)[0]
     return False
 
-def getLunar(session):
+def get_lunar(session):
     lunarPage = session.get(lunarGetURL).content
     angle = int(re.findall('Kreludor=([\d\.]+)', lunarPage)[0])
     answer = int(round(angle/22.5)%16)

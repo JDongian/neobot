@@ -10,16 +10,18 @@ default_header = {
 if __name__ == '__main__':
     login_header = default_header
     login_header['Referer'] = 'http://www.neopets.com/login/index.phtml'
+    login = True
     try:
         with open('LOGIN', 'r') as credentials:
-            login = split(' ', credentials.readline())
-            s = DailyFreebies.login(username=login[0],
-                                    password=login[1][:-1],
-                                    header=login_header)
-            for f in DailyFreebies.__dict__.keys():
-                if f[:3] == 'get' and f[3] != 'p':
-                    freebie = getattr(DailyFreebies, f)
-                    print f, '\t', freebie(s)
+            while login:
+                login = split(' ', credentials.readline())
+                s = DailyFreebies.login(username=login[0],
+                                        password=login[1][:-1],
+                                        header=login_header)
+                for f in DailyFreebies.__dict__.keys():
+                    if f[:3] == 'get' and f[3] != 'p':
+                        freebie = getattr(DailyFreebies, f)
+                        print f, '\t', freebie(s)
     except Exception as e:
         print e
         s = DailyFreebies.login(header=login_header)
