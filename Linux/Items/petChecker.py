@@ -14,6 +14,20 @@ def login(cred={}, login_header={}):
             headers=login_header)
     return s
 
+def check(s):
+    results = 0
+    pet_page = s.get(pet_url).content
+    try:
+        results = re.findall("Available Limited Edition Neopets:</div>([^@]*)<div id='colour_label' style='color: green;", pet_page)[0]
+    except:
+        print 'Error at %d:%s' % (int(time.localtime().tm_hour),
+                str(int(time.localtime().tm_min)).zfill(2))
+    if len(results) != 168:
+        print '======\n%s\n======\n\nat %d:%s' % (results,
+                int(time.localtime().tm_hour),
+                str(int(time.localtime().tm_min)).zfill(2))
+    return results
+
 if __name__=='__main__':
     cred = {}
     with open('LOGIN', 'r') as c:
@@ -26,18 +40,7 @@ if __name__=='__main__':
         if time.localtime().tm_hour == curr_time.tm_hour and\
            time.localtime().tm_yday != curr_time.tm_yday:
             break
-        s = login(cred)
-        pet_page = s.get(pet_url).content
-        results = 0
-        try:
-            results = re.findall("Available Limited Edition Neopets:</div>([^@]*)<div id='colour_label' style='color: green;", pet_page)[0]
-        except:
-            print 'Error at %d:%s' % (int(time.localtime().tm_hour),
-                    str(int(time.localtime().tm_min)).zfill(2))
-        if len(results) != 168:
-            print '======\n%s\n======\n\nat %d:%s' % (results,
-                    int(time.localtime().tm_hour),
-                    str(int(time.localtime().tm_min)).zfill(2))
+        check(login(cred))
         time.sleep(60*60*24*(1-random.random()*0.05))
     print 'Done.'
 

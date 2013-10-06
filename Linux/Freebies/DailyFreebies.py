@@ -34,11 +34,10 @@ DP_URL = 'http://www.neopets.com/community/index.phtml'
 crossword_URL = 'http://www.neopets.com/games/crossword/crossword.phtml'
 answers_URL = 'http://www.tdnforums.com/index.php?/rss/forums/3-faerie-crossword-answers-from-tdn/'
 
-
 def hide(session):
-    '''
-    needs testing
-    '''
+    """Hide and seek.
+    Needs testing.
+    """
     for i in range(1, 16):
         query = {'p':i,'game':17}
         hidePage = session.get(hideURL+'?p='+str(i)+'&game=17').content
@@ -57,10 +56,11 @@ def metor(session):
     if(re.findall('dream', meteorURL)):
         return False
     return True
+
 def marrow(session):
-    '''
+    """Guess the marrow.
     Needs avail. checking
-    '''
+    """
     query = {'guess':642}
     #query = {'guess':int(raw_input('Marrow weight? '))}
     marrowPage = session.post(marrowURL, query).content
@@ -69,9 +69,9 @@ def marrow(session):
     return True
 
 
-'''
+"""
 Helper functions
-'''
+"""
 
 def login(username=None, password=None, header={}):
     s = requests.session()
@@ -91,6 +91,8 @@ def login(username=None, password=None, header={}):
     return s
 
 def _get_DP():
+    """Daily puzzle game.
+    """
     answer_page = requests.get(answers_URL).content
     answer = re.findall('</strong> ([A-Z0-9].*?)<br', answer_page)
     date = re.findall('<title>.*?(\d+).*?</title', answer_page)
@@ -101,6 +103,8 @@ def _get_DP():
         return False
 
 def _get_crossword():
+    """Faerie crossword solver.
+    """
     answer_page = requests.get(answers_URL).content
     across = re.findall('Across:</strong><br />\s*([^`]*?)\s*<td', answer_page)
     down = re.findall('Down:</strong><br />\s*([^`]*?)\s*<td', answer_page)
@@ -110,11 +114,13 @@ def _get_crossword():
     else:
         return False
 
-'''
+"""
 (MOSTLY) FINISHED METHODS
-'''
+"""
 
 def get_potato(session):
+    """Potato counter 1.
+    """
     for i in xrange(3):
         potato_page = session.get(potato_URL).content
         soup = BeautifulSoup(potato_page)
@@ -130,8 +136,11 @@ def get_potato(session):
         potato_page = session.post(potato_URL, form).content
     with open('dump/dumpPotato.html', 'w') as dump:
         dump.write(''.join([c for c in potato_page if ord(c) < 128]))
+    return True
 
 def get_crossword(session, header={}):
+    """Faerie crossword solver.
+    """
     header['Referer'] = 'http://www.neopets.com/games/crossword/index.phtml'
     crossword = session.post(crossword_URL, headers=header).content
     soup = BeautifulSoup(crossword)
@@ -187,6 +196,8 @@ def get_crossword(session, header={}):
         return True
 
 def get_puzzle(session):
+    """Daily puzzle solver.
+    """
     answer, neodate = _get_DP()
     question_page = requests.get(DP_URL).content
     with open('dump/dumpDP.html', 'w') as dump:
@@ -211,9 +222,9 @@ def get_puzzle(session):
     return False
 
 def get_tombola(session):
-    '''
+    """Tombola player.
     Needs soup.
-    '''
+    """
     header = {'Referer': 'http://www.neopets.com/island/tombola.phtml'}
     tombolaPage = session.post(tombolaURL, headers=header).content
     with open('dump/dumpTombola.html', 'w') as dump:
@@ -223,18 +234,20 @@ def get_tombola(session):
     return False
 
 def get_coltzan(session):
-    '''
+    """Coltzan's shrine.
     Needs soup.
-    '''
+    """
     query = {'type': 'approach'}
     coltzanPage = session.post(coltzanURL, query).content
     with open('dump/dumpColtzan.html', 'w') as dump:
         pass#dump.write(coltzanPage.decode('utf-8').encode('ascii', 'ignore'))
     if(re.findall('young', coltzanURL)):
-        return True
-    return False
+        return 'young'
+    return True
 
 def get_toys(session):
+    """Toy chest.
+    """
     query = {'go': 1}
     toyPage = session.post(toyURL, query).content
     with open('dump/dumpToy.html', 'w') as dump:
@@ -245,6 +258,8 @@ def get_toys(session):
     return False
 
 def get_tomb(session):
+    """Geritipuku tomb.
+    """
     tombPage = session.post(tombURL).content
     with open('dump/dumpTomb.html', 'w') as dump:
         pass#dump.write(tombPage.decode('utf-8').encode('ascii', 'ignore'))
@@ -256,6 +271,8 @@ def get_tomb(session):
     return False
 
 def get_krawken(session):
+    """Anchor management.
+    """
     krawkenPage = session.get(krawkenURL).content
     if(re.findall('more, huh?', krawkenPage)):
         print 'Krawken on cooldown.'
@@ -270,6 +287,8 @@ def get_krawken(session):
     return False
 
 def get_obsidian(session):
+    """Obsidian quarry.
+    """
     obsidianPage = session.get(obsidianURL).content
     with open('dump/dumpObsidian.html', 'w') as dump:
         pass#dump.write(obsidianPage.decode('utf-8').encode('ascii', 'ignore'))
@@ -278,9 +297,9 @@ def get_obsidian(session):
     return 'Obsidian get'
 
 def get_fruit(session):
-    '''
-    Works, win condition untested.
-    '''
+    """Fruit machine.
+    Works, win condition untested
+    """
     fruitPage = session.get(fruitURL).content
     ck = re.findall('ck" value="([a-f\d]+)', fruitPage)
     if(ck):
@@ -295,9 +314,11 @@ def get_fruit(session):
     winnings = re.findall('you won a <b>([\d\w ]+)</b>', fruitPage)
     if(len(winnings)):
         return winnings[0]
-    return False
+    return True
 
 def get_apple(session):
+    """Apple bobbing.
+    """
     #query = {'bobbing': 1}
     applePage = session.get(appleURL).content
     with open('dump/dumpApple.html', 'w') as dump:
@@ -310,6 +331,8 @@ def get_apple(session):
     return False
 
 def get_plushie(session):
+    """The magical discarded blue grundo plushie thing.
+    """
     import codecs
     query = {'talkto':1}
     plushiePage = session.post(plushieURL, query).content
@@ -324,6 +347,8 @@ def get_plushie(session):
     return False
 
 def get_fish(session):
+    """Underground fishing.
+    """
     query = {'go_fish':1}
     fishingPage = session.post(fishingURL, query).content
     with open('dump/dumpFishing.html', 'w') as dump:
@@ -334,6 +359,8 @@ def get_fish(session):
     return 'unknown state'
 
 def get_slorg(session):
+    """Rich slorg.
+    """
     query = {'slorg_payout': 'yes'}
     slorgPage = session.post(slorgURL, query).content
     with open('dump/dumpSlorg.html', 'w') as dump:
@@ -343,6 +370,8 @@ def get_slorg(session):
     return False
 
 def get_interest(session):
+    """Bank interest collector.
+    """
     query = {'type':'interest'}
     session.post(bankPostURL, query)
     bankPage = session.get(bankGetURL).content
@@ -354,6 +383,8 @@ def get_interest(session):
     return False
 
 def get_jelly(session):
+    """Free jelly.
+    """
     query = {'type':'get_jelly'}
     jellyPage = session.post(jellyURL, query).content
     with open('dump/dumpJelly.html', 'w') as dump:
@@ -366,6 +397,8 @@ def get_jelly(session):
     return False
 
 def get_omelette(session):
+    """Tyrannian omelette.
+    """
     query = {'type':'get_omelette'}
     omelettePage = session.post(omeletteURL, query).content
     with open('dump/dumpOmelette.html', 'w') as dump:
@@ -379,6 +412,8 @@ def get_omelette(session):
     return False
 
 def get_lunar(session):
+    """Lunar quiz.
+    """
     lunarPage = session.get(lunarGetURL).content
     angle = int(re.findall('Kreludor=([\d\.]+)', lunarPage)[0])
     answer = int(round(angle/22.5)%16)
