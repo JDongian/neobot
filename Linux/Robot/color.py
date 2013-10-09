@@ -36,6 +36,7 @@ def get_current_screen_pixel(point, relative=False):
     grabs with respect to the game position,
     as opposed to the top left corner.
     WARNING: The screen is grabbed on every call of this function.
+    DEPRECATED.
     '''
     if relative == True:
         relative = get_game_pos()

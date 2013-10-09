@@ -4,22 +4,22 @@ from Xlib import display
 import time
 import random
 
+game_pos = 0
 
-config.config.defaults['defaultDelay'] = 0
-config.config.defaults['actionDelay'] = 0
-config.config.defaults['typingDelay'] = 0
+def __init__():
+    config.config.defaults['defaultDelay'] = 0
+    config.config.defaults['actionDelay'] = 0
+    config.config.defaults['typingDelay'] = 0
 
-gamePos = -1
-
-def setGamePos(pos):
+def set_game_pos(pos):
     global gamePos
-    gamePos = pos
+    game_pos = pos
 
 ###
 ### Keyboard out
 ###
 
-def outKey(keyName, n=1, postdelay=0):
+def out_key(keyName, n=1, postdelay=0):
     '''
     Press the key n times.
     '''
@@ -27,7 +27,7 @@ def outKey(keyName, n=1, postdelay=0):
         rawinput.pressKey(keyName)
         time.sleep(postdelay)
 
-def outStr(string, intradelay=0):
+def out_key_str(string, intradelay=0):
     '''
     Type the string with a given delay between each character.
     '''
@@ -38,7 +38,7 @@ def outStr(string, intradelay=0):
 ### Mouse in
 ###
 
-def getMousePos(screenroot=display.Display().screen().root):
+def read_mouse_pos(screenroot=display.Display().screen().root):
     pointer = screenroot.query_pointer()
     data = pointer._data
     return data["root_x"], data["root_y"]
@@ -47,94 +47,88 @@ def getMousePos(screenroot=display.Display().screen().root):
 ### Mouse out
 ###
 
-def outClick(postDelay=0):
-    '''
-    Click in current position
-    '''
-    clickAbs(mousePos(), postDelay)
-
-def outMov(coord, mode, click=False, postDelay=0):
-    if mode == 'abs':
-        rawinput.absoluteMotion(coord[0], coord[1], postDelay)
+def out_mouse_click(pos, mode):
+    """Click in current position
+    """
+    if mode == 'current':
+        return rawinput.click(*read_mouse_pos())
+    elif mode == 'abs':
+        return rawinput.click(*pos)
+    #Click in the game using game-relative coordinates.
     elif mode == 'rel':
-        rawinput.absoluteMotion((int(gamePos[0][0]+relPos[0]),
-            int(gamePos[0][1]+relPos[1])), postDelay)
-    elif mode == 'ratio':
-        rawinput.absoluteMotion((int(ratioPos[0]*gameLen),
-            int(ratioPos[1]*gameHeight)), postDelay)
-    if click:
-        outClick(postDelay)
-
-def clickAbs(absPos, postDelay=0):
-    '''
-    Click on the computer screen.
-    '''
-    return rawinput.click(absPos[0], absPos[1])
-
-def clickRel(relPos, downTime):
-    '''
-    Click in the game using game-relative coordinates.
-    '''
-    global gamePos
-
-    if gamePos == -1:
-        raise Exeption('Error: gamePos undefined.')
-        return False
-    if relPos[0] > gamePos[1][0] or relPos[1] > gamePos[1][1]:
-        print 'Error: position out of bounds.'
-        return False
-    return clickAbs((int(gamePos[0][0]+relPos[0]), int(gamePos[0][1]+relPos[1])),
-              downTime)
-
-def clickRatio(ratioPos, downTime):
-    '''
-    Click in the game with a xy-ratio input.
-    '''
-    global gameLen
-    global gameHeight
-    if gameLen == -1 or gameHeight == -1:
-        print 'Error: game dimensions undefined.'
-        return False
-    return clickRel((ratioPos[0]*gameLen, ratioPos[1]*gameHeight), downTime)
-
-def traversePath(points, click=False, ref=-1):
-    '''
-    Traverse the given game path.
-    Do not mix ratio and relative point formats.
-    Set click to True to click at each point on the path.
-    '''
-    global gamePos
-    if ref == -1:
-        ref = gamePos
-    mode = 'absolute'
-    if 0 < points[0][0] < 1:
-        mode = 'ratio'
-    for p in points:
-        if mode == 'ratio':
-            pos = int(p[0]*gameLen)+ref[0], int(p[1]*gameHeight)+ref[1]
+        if game_pos == 0:
+            raise Exeption("Error: game_pos undefined.")
+            return False
+        #Bounds checking.
+        if game_pos[0][0] <= pos[0] <= game_pos[1][0] and\
+           game_pos[0][1] <= pos[1] <= game_pos[1][1]:
+            return rawinput.click(game_pos[0][0]+pos[0],
+                                  game_pos[0][1]+pos[1])
         else:
-            pos = p[0]+ref[0], p[1]+ref[1]
-        rawinput.absoluteMotion(pos[0], pos[1])
-        if click:
-            click()
+            raise Exeption("Error: position out of bounds.")
+            return False
+    elif mode == 'ratio':
+        if game_pos == 0:
+            raise Exeption("Error: game_pos undefined.")
+            return False
+        #Bounds checking.
+        if 0 <= pos[0] <= 1 and\
+           0 <= pos[1] <= 1:
+            return rawinput.click(game_pos[0][0]+\
+                                  pos[0]*(game_pos[1][0]-game_pos[0][0]),
+                                  game_pos[0][1]+\
+                                  pos[1]*(game_pos[1][1]-game_pos[0][1]))
+        else:
+            raise Exeption("Error: position out of bounds.")
+            return False
+    raise Exeption("Error: incorrect mode.")
+    return False
 
-def randomizePoint(p, dx, dy):
-    return p+random.gauss(0, dx/4), p+random.gauss(0, dy/4)
+def out_mouse_move(pos, mode):
+    if mode == 'abs':
+        return rawinput.absoluteMotion(*pos)
+    #Click in the game using game-relative coordinates.
+    elif mode == 'rel':
+        if game_pos == 0:
+            raise Exeption("Error: game_pos undefined.")
+            return False
+        #Bounds checking.
+        if game_pos[0][0] <= pos[0] <= game_pos[1][0] and\
+           game_pos[0][1] <= pos[1] <= game_pos[1][1]:
+            return rawinput.absoluteMotion(game_pos[0][0]+pos[0],
+                                           game_pos[0][1]+pos[1])
+        else:
+            raise Exeption("Error: position out of bounds.")
+            return False
+    elif mode == 'ratio':
+        if game_pos == 0:
+            raise Exeption("Error: game_pos undefined.")
+            return False
+        #Bounds checking.
+        if 0 <= pos[0] <= 1 and\
+           0 <= pos[1] <= 1:
+            return rawinput.absoluteMotion(game_pos[0][0]+\
+                                           pos[0]*(game_pos[1][0]-\
+                                                   game_pos[0][0]),
+                                           game_pos[0][1]+\
+                                           pos[1]*(game_pos[1][1]-\
+                                                   game_pos[0][1]))
+        else:
+            raise Exeption("Error: position out of bounds.")
+            return False
+    raise Exeption("Error: incorrect mode.")
+    return False
 
-def randomWait(t):
-    print 'I waited'
+"""Test suite
+"""
 
-'''
-Test suite
-'''
-
-def testKb():
+def test_keyboard():
     print 'Testing kb out: printing alphabet twice.'
     for i in range(0, 26):
         outKey(chr(i+ord('a')))
     outStr(''.join(map(chr, range(97, 123))))
 
-def testMouse():
+def test_mouse():
     import subprocess, re
     print 'Testing mouse out: drawing a square spiral.'
     osval = subprocess.check_output("xrandr | grep '*'", shell=True)
@@ -151,8 +145,8 @@ def testMouse():
         outMov((i*2,i), 'abs', False, 0.05)
 
 if __name__=='__main__':
-    testMouse()
-    testKb()
+    test_mouse()
+    test_keyboard()
 
 
 
